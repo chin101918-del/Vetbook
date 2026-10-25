@@ -1021,7 +1021,7 @@ html.vb-inapp .vbi-note{display:block}
   </div>
 </div>
 <script>
-/* Vetbook launch splash (SVG + CSS 3D, no canvas). Timeline, 2.8 s in all:
+/* Vetbook launch splash (SVG + CSS 3D, no canvas). Timeline, 3.0 s in all:
    V rests → V folds into the book → its pages fan out and close → the book turns to face you
    → a short breath → the cover swings open and the page rushes forward until it fills the screen.
    The last frame is the app's paper colour (#F3F5F1), so the splash can drop out unseen and the app fades up.
@@ -1117,7 +1117,8 @@ function openBook(x){
   lines.style.opacity=(1-zoom).toFixed(3);
 }
 
-var T={intro:190,toBook:600,settle:375,toPage:630,breath:125,open:880};
+// settle: springy fan-out of the page edges — a big bounce, then two smaller ones
+var T={intro:190,toBook:600,settle:560,toPage:630,breath:125,open:880};
 var marks={}, END=0; for(var key in T){marks[key]=[END,END+T[key]];END+=T[key];}
 function inOutCubic(x){return x<0.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;}
 function inOutQuart(x){return x<0.5?8*x*x*x*x:1-Math.pow(-2*x+2,4)/2;}
@@ -1127,7 +1128,7 @@ function phase(e,k){return Math.min(1,Math.max(0,(e-marks[k][0])/T[k]));}
 function frame(e){
   if(e<marks.intro[1]){draw(0);pose(1);}
   else if(e<marks.toBook[1]){draw(inOutCubic(phase(e,'toBook'))*BOOK);pose(1);}
-  else if(e<marks.settle[1]){riffle=1+0.28*Math.sin(Math.PI*inOutSine(phase(e,'settle')));draw(BOOK);riffle=1;pose(1);}
+  else if(e<marks.settle[1]){var rt=phase(e,'settle');riffle=1+1.4*Math.exp(-3.2*rt)*Math.sin(3*Math.PI*rt);draw(BOOK);riffle=1;pose(1);}
   else if(e<marks.toPage[1]){draw(BOOK+inOutQuart(phase(e,'toPage'))*(LAST-BOOK));pose(1);}
   else if(e<marks.breath[1]){draw(LAST);pose(1-0.08*inOutSine(phase(e,'breath')));}
   else{draw(LAST);pose(0.92);openBook(phase(e,'open'));}
